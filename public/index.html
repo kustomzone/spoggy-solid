@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-  <title>Dreamcatcher / Smag0 Socket.IO</title>
+  <title>Spoggy / Solid / Socket.IO</title>
   <!-- GENERAL LIBRAIRIES -->
   <script src="/socket.io/socket.io.js"></script>
   <script src="lib/rdflib.min.js"></script>
@@ -18,19 +18,106 @@
   socket.on('disconnect', function(){
     console.log("deconnecte");
   });
-  console.log(socket);
+  //console.log(socket);
   </script>
 
   <script>
-  console.log($rdf);
-  console.log(solid)
-  
+  //  console.log($rdf);
+  //  console.log(solid)
 </script>
 
 
 
 </head>
 <body>
-  Version avec Socket
+
+<div>
+  <p>
+    <button id="solidLogin"  onclick="login()">Login</button>
+  </p>
+  <p>
+    <button id="solidLogout"  onclick="logout()">Logout</button>
+  </p>
+  <p>
+    (<a href="https://solid.inrupt.com/get-a-solid-pod" target="_blank"> Get a POD / Obtenir un POD</a>)
+  </p>
+</div>
+
+<div id="card">
+  Pod : <input id="podInput" type="text" size="100"></input>
+
+</div>
 </body>
+
+
+<script>
+const podInput = document.getElementById('podInput');
+const solidLogin = document.getElementById('solidLogin');
+const solidLogout = document.getElementById('solidLogout');
+
+//namespaces
+const FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+
+  const store  = $rdf.graph();
+
+function login(){
+  console.log("login")
+  console.log(solid);
+  // Log the user in and out on click
+  const popupUri = 'popup.html';
+  solid.auth.popupLogin({ popupUri });
+
+}
+
+function logout(){
+  console.log("logout")
+  solid.auth.logout();
+//  this._clearSolidResults();
+}
+
+
+solid.auth.trackSession(session => {
+  const loggedIn = !!session;
+
+
+  if (loggedIn){
+      console.log("LOGGED : ",session.webId)
+      solidLogin.style.display = "none";
+      solidLogout.style.display = "block";
+      card.style.display = "block";
+      
+      podInput.value = session.webId;
+
+      var uri = podInput.value;
+      console.log(uri);
+      const me = store.sym(uri);
+      const profile = me.doc();       //i.e. store.sym(''https://example.com/alice/card#me')
+
+      console.log(me)
+      console.log(profile)
+    /*
+
+    // Set up a local data store and associated data fetcher
+    this.store = $rdf.graph();
+    this.fetcher = new $rdf.Fetcher(this.store);
+    this.updateManager = new $rdf.UpdateManager(this.store);
+    this.loadProfile();*/
+  }else{
+      console.log("NOT LOGGED");
+      solidLogin.style.display = "block";
+      solidLogout.style.display = "none";
+      card.style.display = "none";
+
+      podInput.value = "";
+
+    /*this._solidLoginBtn.style.visibility="visible";
+    this._solidLogoutBtn.style.visibility="hidden";
+    this._card.style.visibility="hidden";
+    this._inputSolid.value = "";*/
+  }
+});
+
+
+</script>
+
 </html>
