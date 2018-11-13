@@ -31,22 +31,27 @@
 </head>
 <body>
 
-<div>
-  <p>
-    <button id="solidLogin"  onclick="login()">Login</button>
-  </p>
-  <p>
-    <button id="solidLogout"  onclick="logout()">Logout</button>
-  </p>
-  <p>
-    (<a href="https://solid.inrupt.com/get-a-solid-pod" target="_blank"> Get a POD / Obtenir un POD</a>)
-  </p>
-</div>
+  <div>
+    <p>
+      <button id="solidLogin"  onclick="login()">Login</button>
+    </p>
+    <p>
+      <button id="solidLogout"  onclick="logout()">Logout</button>
+    </p>
+    <p>
+      (<a href="https://solid.inrupt.com/get-a-solid-pod" target="_blank"> Get a POD / Obtenir un POD</a>)
+    </p>
+  </div>
 
-<div id="card">
-  Pod : <input id="podInput" type="text" size="100"></input>
+  <div id="card">
+    Pod : <input id="podInput" type="text" size="100"></input>
+    <p>
+      <button id="updatePublicFolderBtn"  onclick="updatePublicFolder()">update Public Folder / Actualiser le dossier public</button>
+    </p>
+    <div id="folders">
 
-</div>
+    </div>
+  </div>
 </body>
 
 
@@ -57,8 +62,10 @@ const solidLogout = document.getElementById('solidLogout');
 
 //namespaces
 const FOAF = $rdf.Namespace('http://xmlns.com/foaf/0.1/');
+const LDP = $rdf.Namespace('http://www.w3.org/ns/ldp#>');
 
-  const store  = $rdf.graph();
+const store  = $rdf.graph();
+var session,webidRoot, publicFolder, folder, fetcher, updater;
 
 function login(){
   console.log("login")
@@ -66,13 +73,12 @@ function login(){
   // Log the user in and out on click
   const popupUri = 'popup.html';
   solid.auth.popupLogin({ popupUri });
-
 }
 
 function logout(){
   console.log("logout")
   solid.auth.logout();
-//  this._clearSolidResults();
+  //  this._clearSolidResults();
 }
 
 
@@ -81,41 +87,85 @@ solid.auth.trackSession(session => {
 
 
   if (loggedIn){
-      console.log("LOGGED : ",session.webId)
-      solidLogin.style.display = "none";
-      solidLogout.style.display = "block";
-      card.style.display = "block";
-      
-      podInput.value = session.webId;
+    console.log("LOGGED : ",session.webId)
+    solidLogin.style.display = "none";
+    solidLogout.style.display = "block";
+    card.style.display = "block";
 
-      var uri = podInput.value;
-      console.log(uri);
-      const me = store.sym(uri);
-      const profile = me.doc();       //i.e. store.sym(''https://example.com/alice/card#me')
+    podInput.value = session.webId;
+session = session;
 
-      console.log(me)
-      console.log(profile)
+    var uri = podInput.value;
+    console.log(uri);
+    const me = store.sym(uri);
+    const profile = me.doc();       //i.e. store.sym(''https://example.com/alice/card#me')
+
+    console.log(me)
+    console.log(profile)
+    fetcher = new $rdf.Fetcher(this.store);
+    updater = new $rdf.UpdateManager(this.store);
+    console.log(fetcher)
+    console.log(updater)
     /*
+    updatePublicFolder()
 
-    // Set up a local data store and associated data fetcher
-    this.store = $rdf.graph();
-    this.fetcher = new $rdf.Fetcher(this.store);
-    this.updateManager = new $rdf.UpdateManager(this.store);
     this.loadProfile();*/
   }else{
-      console.log("NOT LOGGED");
-      solidLogin.style.display = "block";
-      solidLogout.style.display = "none";
-      card.style.display = "none";
+    console.log("NOT LOGGED");
+    solidLogin.style.display = "block";
+    solidLogout.style.display = "none";
+    card.style.display = "none";
 
-      podInput.value = "";
-
-    /*this._solidLoginBtn.style.visibility="visible";
-    this._solidLogoutBtn.style.visibility="hidden";
-    this._card.style.visibility="hidden";
-    this._inputSolid.value = "";*/
+    podInput.value = "";
+    webidRoot = null;
+    fetcher = null;
+    updater = null;
+    publicFolder = null;
+    /*clearPublicFolder*/
   }
 });
+
+
+function updatePublicFolder(){
+console.log("FOLDERS SEARCH" )
+/*var wedIdSpilt = session.webId.split("/");
+  console.log(wedIdSpilt)
+
+publicFolder = wedIdRoot+"/public/";
+console.log(publicFolder);
+folder = publicFolder;
+
+
+
+  fetcher.load(folder).then(() => {
+    let files = store.any(folder, LDP('contains'));
+console.log(files)
+    files.forEach(function(file) {
+      console.log('contains' + file);
+    });
+  });*/
+}
+
+/*
+function extractHostname(urlLong) {
+    var hostname;
+    //find & remove protocol (http, ftp, etc.) and get hostname
+
+    if (urlLong.indexOf("//") > -1) {
+        hostname = urlLong.split('/')[2];
+    }
+    else {
+        hostname = urlLong.split('/')[0];
+    }
+
+    //find & remove port number
+    hostname = hostname.split(':')[0];
+    //find & remove "?"
+    hostname = hostname.split('?')[0];
+
+    return hostname;
+}*/
+
 
 
 </script>
