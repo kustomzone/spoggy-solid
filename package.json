@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "rdflib": "^0.19.1"
+    "express": "^4.16.4",
+    "rdflib": "^0.19.1",
+    "socket.io": "^2.1.1"
   }
 }
