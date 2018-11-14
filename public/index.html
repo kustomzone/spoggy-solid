@@ -208,6 +208,8 @@ function loadProfile(){
   const profile = me.doc() //    i.e. store.sym(''https://example.com/alice/card#me');
   const VCARD = new $rdf.Namespace('http://www.w3.org/2006/vcard/ns#');
   const fetcher =new $rdf.Fetcher(store);
+  console.log(fetcher)
+  globalfetcher = fetcher;
   fetcher.load(profile).then(response => {
     let name = store.any(me, VCARD('fn'));
     console.log("Loaded "+name);
@@ -224,7 +226,24 @@ function addFolder(){
   var newFolder = document.getElementById("newFolderInput").value;
   console.log(newFolder);
 
-  console.log(currentFolder)
+  console.log(currentFolder);
+  solid.auth.fetch(currentFolder, {
+    method: 'POST', // or 'PUT'
+    headers:{
+      'Content-Type': 'text/turtle',
+      'Link': '<http://www.w3.org/ns/ldp#BasicContainer>; rel="type"',
+      'Slug':  newFolder
+    }
+  })
+  .then((res) => {return res;})
+  .then((response) => {
+    console.log(response)
+    //  callback(null);
+  })
+  .catch((error) => {
+    console.log('Error: '+JSON.stringify(error))
+    //  callback('Error: '+JSON.stringify(error));
+  });
 }
 
 function addFile(){
@@ -232,6 +251,43 @@ function addFile(){
   console.log(newFile);
 
   console.log(currentFolder)
+  var newFile = currentFolder+newFile;
+  //https://forum.solidproject.org/t/my-first-app-adding-resources/275/12
+  //https://github.com/pheyvaer/solid-chess/blob/master/lib/datasync.js
+
+  console.log(globalfetcher)
+  var data =  "<Role> <http://example.org/game/participatesIn> <Tension>.";
+  solid.auth.fetch(newFile, {
+    method: 'PUT', // or 'PUT'
+    headers:{
+      'Content-Type': 'text/plain',
+      'Content-Length': data.length.toString()
+    },
+    body: data// data can be `string` or {object}!
+  }).then((res) => {return res;})
+  .then((response) => {
+    console.log(response)
+    //  callback(null);
+  })
+  .catch((error) => {
+    console.log('Error: '+JSON.stringify(error))
+    //  callback('Error: '+JSON.stringify(error));
+  });
+
+  /* Erreur 401
+  globalfetcher.webOperation('PUT', newFile,
+  {
+  body: "fgtf",
+  contentType: "text/plain",
+  credentials: 'include'
+})
+.then(function(reponse){
+console.log(reponse);
+})
+.catch((error) => {
+console.log('Error: '+JSON.stringify(error))
+callback('Error: '+JSON.stringify(error));
+});*/
 }
 
 
@@ -321,8 +377,8 @@ function updatePublicFolder(folder){
         document.getElementById("filesList").appendChild(li);
       }
     });
-    console.log("Folders: "+folders);
-    console.log("Files: "+files);
+    //  console.log("Folders: "+folders);
+    //  console.log("Files: "+files);
     historique.forEach(function(h){
       var li = document.createElement("li");
       li.addEventListener("click", function(){updatePublicFolder(h)});
