@@ -10,57 +10,56 @@
   /*var host = window.document.location.host;
   var socket = io(host);
   socket.on('connect', function(){
-    console.log("connecte");
-  });
-  socket.on('event', function(data){
-    console.log(data);
-  });
-  socket.on('disconnect', function(){
-    console.log("deconnecte");
-  });
-  //console.log(socket);*/
-  </script>
+  console.log("connecte");
+});
+socket.on('event', function(data){
+console.log(data);
+});
+socket.on('disconnect', function(){
+console.log("deconnecte");
+});
+//console.log(socket);*/
+</script>
 
-  <script>
-  //  console.log($rdf);
-  //  console.log(solid)
+<script>
+//  console.log($rdf);
+//  console.log(solid)
 </script>
 
 <style>
 #filesList {
-    background: #ff9999;
-    padding: 20px;
+  background: #ff9999;
+  padding: 20px;
 }
 
 ul {
-    background: #3399ff;
-    padding: 20px;
+  background: #3399ff;
+  padding: 20px;
 }
 
 #filesList li {
-    background: #ffe5e5;
-    padding: 5px;
-    margin-left: 35px;
+  background: #ffe5e5;
+  padding: 5px;
+  margin-left: 35px;
 }
 
 ul li {
   list-style-type: none;
-    background: #cce5ff;
-    margin: 5px;
+  background: #cce5ff;
+  margin: 5px;
 }
 
 /*li:nth-child(even) {
-    background: #FF0;
+background: #FF0;
 }
 li:nth-child(odd) {
-    background: #CCC;
+background: #CCC;
 }*/
 </style>
 
 
 </head>
 <body>
-
   <div>
     <p>
       <button id="solidLogin"  onclick="login()">Login</button>
@@ -73,27 +72,52 @@ li:nth-child(odd) {
     </p>
   </div>
 
-  <div id="card">
-    Pod : <input id="podInput" type="text" size="100"></input>
-    <br>
-    Name : <input id="nameInput" type="text" size="100"></input>
-    <p>
-      <button id="updatePublicFolderBtn"  onclick="updatePublicFolder()">update Public Folder / Actualiser le dossier public</button>
-    </p>
 
+
+
+  <div id="card">
 
     <table border="1" width="90%">
-      <tr><th width="50%">Folders</th><th>Files</th></tr>
       <tr>
-        <td>
-          <ul id="foldersList"></ul>
+        <td >
+          Pod : <input id="podInput" type="text" size="100"></input>
+          <br>
+          Name : <input id="nameInput" type="text" size="100"></input>
         </td>
-        <td>
-          <ul id="filesList"></ul>
+        <td align="right">
+          History / Historique
+          <ul id="historiqueUl"></ul>
         </td>
       </tr>
     </table>
-  </div>
+
+    <button id="updatePublicFolderBtn"  onclick="updatePublicFolder()">update Public Folder / Actualiser le dossier public</button>
+
+    <table border="1" width="90%">
+      <tr>
+        <th >
+          Public Folders / Dossiers Publics <br>
+          <input id="newFolderInput" type="text" >
+        </input>
+        <button id="addFolderBtn"  onclick="addFolder()">add Folder / Ajouter un dossier</button>
+      </th>
+      <th>
+        Files / Fichiers <br>
+        <input id="newFileInput" type="text"></input>
+        <button id="addFileBtn"  onclick="addFile()">add File / Ajouter un fichier</button>
+      </th>
+    </tr>
+    <tr>
+      <td>
+
+        <ul id="foldersList"></ul>
+      </td>
+      <td>
+        <ul id="filesList"></ul>
+      </td>
+    </tr>
+  </table>
+</div>
 </body>
 
 
@@ -108,9 +132,11 @@ const FOAF = new $rdf.Namespace('http://xmlns.com/foaf/0.1/');
 const LDP = new $rdf.Namespace('http://www.w3.org/ns/ldp#>');
 
 const store  = $rdf.graph();
-var sess, webidRoot, publicFolder, folder, fetcher, updater;
+var sess, webIdRoot, currentFolder, fetcher, updater;
 var folders = [];
 var files = [];
+var historique = [];
+
 
 function login(){
   console.log("login")
@@ -150,10 +176,14 @@ solid.auth.trackSession(session => {
     fetcher = new $rdf.Fetcher(this.store);
     updater = new $rdf.UpdateManager(this.store);
     console.log(fetcher)
-    console.log(updater)
-    /*
+    console.log(updater);
+    var wedIdSpilt = sess.webId.split("/");
+    console.log(wedIdSpilt);
+    webIdRoot = wedIdSpilt[0]+"//"+wedIdSpilt[2]+"/";
+    console.log(webIdRoot);
+
     updatePublicFolder()
-    */
+
     loadProfile();
   }else{
     console.log("NOT LOGGED");
@@ -188,22 +218,58 @@ function loadProfile(){
 
 }
 
+//////////////////////////
+
+function addFolder(){
+  var newFolder = document.getElementById("newFolderInput").value;
+  console.log(newFolder);
+
+  console.log(currentFolder)
+}
+
+function addFile(){
+  var newFile = document.getElementById("newFileInput").value;
+  console.log(newFile);
+
+  console.log(currentFolder)
+}
+
 
 
 function updatePublicFolder(folder){
+  /*var wedIdSpilt = sess.webId.split("/");
+  console.log(wedIdSpilt);
+  webIdRoot = wedIdSpilt[0]+"//"+wedIdSpilt[2]+"/";
+  console.log(webIdRoot);*/
   if (folder == undefined){
-    var wedIdSpilt = sess.webId.split("/");
-    console.log(wedIdSpilt);
-    wedIdRoot = wedIdSpilt[0]+"//"+wedIdSpilt[2]+"/"
-
-    publicFolder = wedIdRoot+"public/";
+    publicFolder = webIdRoot+"public/";
+    console.log(publicFolder);
     console.log(publicFolder);
     folder = publicFolder;
   }
-  console.log("FOLDERS SEARCH"+folder )
+  currentFolder = folder;
+  console.log("FOLDERS SEARCH ",folder, "WEBIDROOT "+webIdRoot )
   document.getElementById("foldersList").innerHTML = ""
   document.getElementById("filesList").innerHTML = ""
-  console.log(folder)
+  document.getElementById("historiqueUl").innerHTML = ""
+  /*var histfolder = folder.replace(webIdRoot, '');
+  console.log("HISTORY : "+histfolder)*/
+  if (historique.length>3){historique.shift();}
+  historique.push(folder);
+  console.log("WEBIDROOT "+webIdRoot)
+  if (parent != webIdRoot){
+    partemp =folder;
+    var  partemp = partemp.split('/');
+    partemp.pop();
+    partemp.pop();
+    parent = partemp.join("/")+"/";
+  }
+  console.log("PARENT : "+parent)
+  var liParent = document.createElement("li");
+  liParent.addEventListener("click", function(){updatePublicFolder(parent)});
+  var text = document.createTextNode(". . /  " +parent);
+  liParent.appendChild(text);
+  document.getElementById("foldersList").appendChild(liParent);
 
   const store = $rdf.graph();
   const me = store.sym(sess.webId);
@@ -215,25 +281,39 @@ function updatePublicFolder(folder){
   const LDP = new $rdf.Namespace('http://www.w3.org/ns/ldp#>');
   const STAT = new $rdf.Namespace('http://www.w3.org/ns/posix/stat#')
   const fetcher =new $rdf.Fetcher(store);
+
+
+
+
+
   fetcher.load(folder).then(response => {
-    console.log(response.responseText)
+    //  console.log(response.responseText)
     //console.log(fetcher)
-    let all = store.match(null, null, null, null);
-    console.log(all)
+    /*let all = store.match(null, null, null, null);
+    console.log(all)*/
 
     let sizes = store.match(null, STAT('size'), null, null);
     console.log(sizes);
+
+    //  parent = folder.split('/').pop().join("/");
+    //  console.log(parent)
+    /*  var liParent = document.createElement("li");
+    li.addEventListener("click", function(){updatePublicFolder(parent)});
+    var text = document.createTextNode("../ : " +parent);
+    li.appendChild(text);
+    document.getElementById("foldersList").appendChild(liParent);*/
+
     sizes.forEach(function(s){
       if (s.object.value == '4096'){
-        console.log('folder '+s.subject.value);
+        //  console.log('folder '+s.subject.value);
         folders.push(s.subject.value);
         var li = document.createElement("li");
         li.addEventListener("click", function(){updatePublicFolder(s.subject.value)});
-        var text = document.createTextNode(s.subject.value);
+        var text = document.createTextNode(s.subject.value.replace(webIdRoot, ''));
         li.appendChild(text);
         document.getElementById("foldersList").appendChild(li);
       }else{
-        console.log('file '+s.subject.value);
+        //  console.log('file '+s.subject.value);
         files.push(s.subject.value);
         var li = document.createElement("li");
         var text = document.createTextNode(s.subject.value);
@@ -243,6 +323,13 @@ function updatePublicFolder(folder){
     });
     console.log("Folders: "+folders);
     console.log("Files: "+files);
+    historique.forEach(function(h){
+      var li = document.createElement("li");
+      li.addEventListener("click", function(){updatePublicFolder(h)});
+      var text = document.createTextNode(h.replace(webIdRoot, ''));
+      li.appendChild(text);
+      document.getElementById("historiqueUl").appendChild(li);
+    });
 
     //  var slides = ["slide 1", "slide 2", "slide 3", "slide 4", "slide 5"]
     /*  var foList = '<ul>';
