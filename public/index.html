@@ -2,12 +2,12 @@
 <head>
   <title>Spoggy / Solid / Socket.IO</title>
   <!-- GENERAL LIBRAIRIES -->
-  <script src="/socket.io/socket.io.js"></script>
+  <!--<script src="/socket.io/socket.io.js"></script>-->
   <script src="lib/rdflib.min.js"></script>
   <script src="lib/solid-auth-client.bundle.js"></script>
 
   <script>
-  var host = window.document.location.host;
+  /*var host = window.document.location.host;
   var socket = io(host);
   socket.on('connect', function(){
     console.log("connecte");
@@ -18,7 +18,7 @@
   socket.on('disconnect', function(){
     console.log("deconnecte");
   });
-  //console.log(socket);
+  //console.log(socket);*/
   </script>
 
   <script>
@@ -27,12 +27,34 @@
 </script>
 
 <style>
-li:nth-child(even) {
+#filesList {
+    background: #ff9999;
+    padding: 20px;
+}
+
+ul {
+    background: #3399ff;
+    padding: 20px;
+}
+
+#filesList li {
+    background: #ffe5e5;
+    padding: 5px;
+    margin-left: 35px;
+}
+
+ul li {
+  list-style-type: none;
+    background: #cce5ff;
+    margin: 5px;
+}
+
+/*li:nth-child(even) {
     background: #FF0;
 }
 li:nth-child(odd) {
     background: #CCC;
-}
+}*/
 </style>
 
 
