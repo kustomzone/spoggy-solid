@@ -23,3 +23,7 @@ node index.js
 
 ```
 this launch a nodejs / express server that provide /public/index.html page on http://localhost:3000
+
+
+# docs
+voir https://github.com/solid/solid-tutorial-intro
